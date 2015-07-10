@@ -1,0 +1,28 @@
+{
+  "name": "angular-siren",
+  "version": "0.0.0",
+  "description": "services for angular apps that use a siren-style API",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jshint . && jscs ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rschick/angular-siren.git"
+  },
+  "author": "Russell.Schick@d2l.com",
+  "license": "MIT",
+  "devDependencies": {
+    "jscs": "~1.13.1",
+    "jshint": "~2.8.0"
+  },
+  "dependencies": {},
+  "bugs": {
+    "url": "https://github.com/rschick/angular-siren/issues"
+  },
+  "homepage": "https://github.com/rschick/angular-siren#readme",
+  "keywords": [
+    "angular",
+    "siren"
+  ]
+}

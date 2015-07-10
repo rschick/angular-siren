@@ -1,0 +1,22 @@
+{
+	"bitwise": true,
+	"expr": true,
+	"forin": true,
+	"freeze": true,
+	"globals": {
+		"_": true,
+		"angular": true,
+		"module": true,
+		"require": true
+	},
+	"latedef": true,
+	"laxbreak": true,
+	"multistr": true,
+	"noarg": true,
+	"noempty": true,
+	"nonbsp": true,
+	"nonew": true,
+	"sub": true,
+	"undef": true,
+	"unused": "vars"
+}

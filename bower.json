@@ -1,0 +1,29 @@
+{
+  "name": "angular-siren",
+  "authors": [
+    "Russell Schick <Russell.Schick@d2l.com>"
+  ],
+  "description": "services for siren based apps",
+  "main": [
+	  "src/index.js",
+	  "src/navigator.js",
+	  "src/ui.js"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "angular",
+    "siren"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "angular": "1.3.x",
+    "lodash": "3.x"
+  }
+}
