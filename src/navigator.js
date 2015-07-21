@@ -291,6 +291,11 @@ angular.module('angular-siren.navigator', [])
 			 * Reloads the current entity with the current window location
 			 */
 			function reload() {
+
+				if (!conf.baseUrl) {
+					return;
+				}
+
 				var apiUrl = app2api($window.location.hash);
 				if (apiUrl !== currentUrl) {
 					follow(apiUrl, entity);
