@@ -318,4 +318,16 @@ angular.module('angular-siren.navigator', [])
 
 		return new Navigator();
 	};
+})
+
+.directive('sirenBaseUrl', function(SirenNavigator) {
+	return {
+		restrict: 'A',
+		link: function(scope, element, attrs) {
+			SirenNavigator.configure({
+				baseUrl: attrs.sirenBaseUrl
+			});
+			SirenNavigator.reload();
+		}
+	};
 });
