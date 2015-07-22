@@ -5,7 +5,8 @@ angular.module('angular-siren.navigator', [])
 	var conf = {
 		baseUrl: '',
 		hashPrefix: '#/browse',
-		authorization: ''
+		authorization: '',
+		externalRequestHandler: null
 	};
 
 	function configure(opts) {
@@ -86,6 +87,10 @@ angular.module('angular-siren.navigator', [])
 				return (url.indexOf('http://') === 0 || url.indexOf('https://') === 0);
 			}
 
+			function isExternalUrl(url) {
+				return url.indexOf(conf.baseUrl) !== 0;
+			}
+
 			/*
 			 * http://<apiBase>/courses => #/browse/courses
 			 * http://<randomUrl>/path => http://<randomUrl>/path (will navigate outside the app)
@@ -130,7 +135,17 @@ angular.module('angular-siren.navigator', [])
 			 */
 			function $follow(apiUrl, entity) {
 
-				currentUrl = typeof apiUrl === 'object' ? apiUrl.href : apiUrl;
+				apiUrl = typeof apiUrl === 'object' ? apiUrl.href : apiUrl;
+
+				if (isExternalUrl(apiUrl)) {
+					var action = {
+						href: apiUrl,
+						method: 'GET'
+					};
+					return $q.when(conf.externalRequestHandler(action, entity));
+				}
+
+				currentUrl = apiUrl;
 
 				var deferred = $q.defer();
 
@@ -170,6 +185,11 @@ angular.module('angular-siren.navigator', [])
 			 */
 			function $execute(action, entity) {
 				var contentType = action.type || 'application/x-www-form-urlencoded';
+
+				if (isExternalUrl(action.href)) {
+					return $q.when(conf.externalRequestHandler(action, entity));
+				}
+
 				var options = {
 					method: action.method || 'GET',
 					url: action.href,
@@ -302,11 +322,18 @@ angular.module('angular-siren.navigator', [])
 				}
 			}
 
+			function defaultExternalRequestHandler(action, entity) {
+				console.log('External request: ' + action.href);
+				return $q.when(true);
+			}
+
 			$window.addEventListener('hashchange', function() {
 				if ($window.location.hash.indexOf(conf.hashPrefix) === 0) {
 					reload();
 				}
 			});
+
+			conf.externalRequestHandler = defaultExternalRequestHandler;
 
 			this.configure = configure;
 			this.reload = reload;

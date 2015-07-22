@@ -2,100 +2,103 @@ angular.module('angular-siren.ui', [
 	'angular-siren.navigator'
 ])
 
-.provider('SirenUi', function SirenUiProvider() {
-
-	var entityMap = {};
-	var actionMap = {};
+.factory('SirenEntityMapper', function() {
 
 	var conf = {
-		entityPrefix: '',
-		actionPrefix: ''
+		entityPrefix: 'entity-'
 	};
 
-	function configure(opts) {
-		conf = _.assign(conf, opts);
-		return this;
-	}
+	var entityMap = {};
 
-	function mapEntities(map) {
-		_.assign(entityMap, map);
-		return this;
-	}
+	return {
 
-	function mapActions(map) {
-		_.assign(actionMap, map);
-		return this;
-	}
+		map: function(map) {
+			_.assign(entityMap, map);
+			return this;
+		},
 
-	function getElementNameForClasses(entityClasses) {
-		entityClasses = [].concat(entityClasses);
+		getElementName: function(entity) {
+			var entityClasses = [].concat((entity && entity.class) || undefined);
 
-		var bestMatch = {
-			elementName: 'unknown',
-			count: 0
-		};
+			var bestMatch = {
+				elementName: 'unknown',
+				count: 0
+			};
 
-		_.forEach(entityMap, function(classes, elementName) {
+			_.forEach(entityMap, function(classes, elementName) {
 
-			if (!entityMap.hasOwnProperty(elementName)) {
-				return;
-			}
+				if (!entityMap.hasOwnProperty(elementName)) {
+					return;
+				}
 
-			classes = [].concat(classes);
+				classes = [].concat(classes);
 
-			var count = _.reduce(_.map(classes, function(cls) {
-				return entityClasses.indexOf(cls) >= 0 ? 1 : 0;
-			}), function(total, n) {
-				return total + n;
+				var count = _.reduce(_.map(classes, function(cls) {
+					return entityClasses.indexOf(cls) >= 0 ? 1 : 0;
+				}), function(total, n) {
+					return total + n;
+				});
+
+				if (count > bestMatch.count) {
+					bestMatch.elementName = elementName;
+					bestMatch.count = count;
+				}
 			});
 
-			if (count > bestMatch.count) {
-				bestMatch.elementName = elementName;
-				bestMatch.count = count;
+			if (bestMatch.count === 0) {
+				bestMatch.elementName = entityClasses.sort().join('-');
 			}
-		});
 
-		if (bestMatch.count === 0) {
-			bestMatch.elementName = entityClasses.sort().join('-');
+			return conf.entityPrefix + bestMatch.elementName;
+
 		}
+	};
+})
 
-		return conf.entityPrefix + bestMatch.elementName;
-	}
+.factory('SirenActionMapper', function() {
+	var actionMap = {};
+	var conf = {
+		actionPrefix: 'action-'
+	};
 
-	function getElementNameForAction(actionName) {
+	return {
 
-		var elementName = actionName;
+		map: function(map) {
+			_.assign(actionMap, map);
+			return this;
+		},
 
-		_.forEach(actionMap, function(names, name) {
-			names = [].concat(names);
-			if (names.indexOf(actionName) >= 0) {
-				elementName = name;
-			}
-		});
-
-		return conf.actionPrefix + elementName;
-	}
-
-	this.configure = configure;
-	this.mapEntities = mapEntities;
-	this.mapActions = mapActions;
-	this.getElementNameForClasses = getElementNameForClasses;
-	this.getElementNameForAction = getElementNameForAction;
-
-	this.$get = function SirenUiFactory() {
-
-		function SirenUi() {
-
-			return {
-				mapEntities: mapEntities,
-				mapActions: mapActions,
-				getElementNameForClasses: getElementNameForClasses,
-				getElementNameForAction: getElementNameForAction,
-				configure: configure
-			};
+		getElementName: function(action) {
+			var elementName = (action && action.name) || 'unknown';
+			_.forEach(actionMap, function(names, name) {
+				names = [].concat(names);
+				if (names.indexOf(action.name) >= 0) {
+					elementName = name;
+				}
+			});
+			return conf.actionPrefix + elementName;
 		}
+	};
+})
 
-		return new SirenUi();
+.factory('SirenUi', function SirenUiFactory(SirenEntityMapper, SirenActionMapper) {
+
+	var conf = {
+		entityMapper: SirenEntityMapper,
+		actionMapper: SirenActionMapper
+	};
+
+	return {
+		getElementForEntity: function(entity) {
+			return conf.entityMapper.getElementName(entity);
+		},
+		getElementForAction: function(action) {
+			return conf.actionMapper.getElementName(action);
+		},
+		configure: function (opts) {
+			conf = _.assign(conf, opts);
+			return this;
+		}
 	};
 }).
 
@@ -120,7 +123,7 @@ directive('entity', function($compile, SirenUi) {
 		link: function ($scope, element, attrs) {
 
 			function createEntity() {
-				var elementName = SirenUi.getElementNameForClasses($scope.entity ? $scope.entity.class : undefined);
+				var elementName = SirenUi.getElementForEntity($scope.entity);
 				var template = '<' + elementName + ' entity="entity" />';
 				element.empty();
 				element.append($compile(template)($scope));
@@ -143,7 +146,7 @@ directive('action', function($compile, SirenUi) {
 		link: function ($scope, element, attrs) {
 
 			function createElement() {
-				var elementName = SirenUi.getElementNameForAction(($scope.action && $scope.action.name) || 'unknown');
+				var elementName = SirenUi.getElementForAction($scope.action);
 				var template = '<' + elementName + ' entity="entity" action="action" />';
 				element.empty();
 				element.append($compile(template)($scope));
