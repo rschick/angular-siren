@@ -323,8 +323,7 @@ angular.module('angular-siren.navigator', [])
 			}
 
 			function defaultExternalRequestHandler(action, entity) {
-				console.log('External request: ' + action.href);
-				return $q.when(true);
+				return false;
 			}
 
 			$window.addEventListener('hashchange', function() {
