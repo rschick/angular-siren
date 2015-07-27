@@ -318,7 +318,7 @@ angular.module('angular-siren.navigator', [])
 				return $execute(action, opts.replace ? entity : {})
 					.then(function(result) {
 						if (result && opts.replace) {
-							savedProperties = _.clone(entity);
+							savedProperties = _.clone(entity.properties);
 							etag = result.headers('ETag');
 							setAppLocation(currentUrl);
 						}
@@ -337,7 +337,13 @@ angular.module('angular-siren.navigator', [])
 
 				var apiUrl = app2api($window.location.hash);
 				if (apiUrl !== currentUrl) {
-					$follow(apiUrl, entity);
+					$follow(apiUrl, entity)
+						.then(function(result) {
+							if (result) {
+								savedProperties = _.cloneDeep(entity.properties);
+								etag = result.headers('ETag');
+							}
+						});
 				}
 			}
 
@@ -372,7 +378,6 @@ angular.module('angular-siren.navigator', [])
 			SirenNavigator.configure({
 				baseUrl: attrs.sirenBaseUrl
 			});
-			SirenNavigator.reload();
 		}
 	};
 });
