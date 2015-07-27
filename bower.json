@@ -5,9 +5,9 @@
   ],
   "description": "services for siren based apps",
   "main": [
-	  "src/index.js",
-	  "src/navigator.js",
-	  "src/ui.js"
+    "src/index.js",
+    "src/navigator.js",
+    "src/ui.js"
   ],
   "moduleType": [
     "globals"
@@ -24,6 +24,8 @@
   ],
   "dependencies": {
     "angular": "1.3.x",
-    "lodash": "3.x"
+    "lodash": "3.x",
+    "uri-templates": "https://github.com/geraintluff/uri-templates.git#master",
+    "fast-json-patch": "0.x"
   }
 }

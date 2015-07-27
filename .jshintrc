@@ -7,6 +7,8 @@
 		"_": true,
 		"angular": true,
 		"module": true,
+		"jsonpatch": true,
+		"UriTemplate": true,
 		"require": true
 	},
 	"latedef": true,
