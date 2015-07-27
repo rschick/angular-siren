@@ -27,6 +27,8 @@ angular.module('angular-siren.navigator', [])
 				actions: {},
 				'class': []
 			};
+			var etag;
+			var savedProperties;
 
 			function loadEntity(data, target) {
 
@@ -135,8 +137,6 @@ angular.module('angular-siren.navigator', [])
 			 */
 			function $follow(apiUrl, entity) {
 
-				apiUrl = typeof apiUrl === 'object' ? apiUrl.href : apiUrl;
-
 				if (isExternalUrl(apiUrl)) {
 					var action = {
 						href: apiUrl,
@@ -163,12 +163,15 @@ angular.module('angular-siren.navigator', [])
 
 				$http(options)
 					.success(function(data, status, headers, config) {
+
+						etag = headers('ETag');
+
 						deferred.resolve({
 							data: data,
 							status: status,
 							headers: headers,
 							config: config,
-							entity: loadEntity(data, entity)
+							entity: status === 200 && loadEntity(data, entity)
 						});
 					})
 					.error(function(data, status, headers, config) {
@@ -214,11 +217,20 @@ angular.module('angular-siren.navigator', [])
 
 					return $follow(apiUrl, entity);
 				} else {
+
+					if (['PUT', 'PATCH', 'DELETE'].indexOf(options.method) >= 0) {
+						if (etag) {
+							options.headers['If-Match'] = etag;
+						}
+					}
+
 					if (contentType === 'application/json') {
 						options.data = {};
 						angular.forEach(action.fields, function(field) {
 							options.data[field.name] = field.value;
 						});
+					} else if (contentType === 'application/json-patch+json') {
+						options.data = jsonpatch.compare(savedProperties, entity.properties);
 					} else if (contentType === 'application/x-www-form-urlencoded') {
 						var data = [];
 						angular.forEach(action.fields, function(field) {
@@ -249,7 +261,7 @@ angular.module('angular-siren.navigator', [])
 							status: status,
 							headers: headers,
 							config: config,
-							entity: loadEntity(data, entity)
+							entity: status === 200 && loadEntity(data, entity)
 						});
 					})
 					.error(function(data, status, headers, config) {
@@ -272,15 +284,20 @@ angular.module('angular-siren.navigator', [])
 			 */
 			function follow(apiUrl, opts) {
 
-				apiUrl = apiUrl || conf.baseUrl;
+				apiUrl = typeof apiUrl === 'object' ? apiUrl.href : apiUrl;
 
 				opts = _.assign({
 					replace: true
 				}, opts);
 
+				var uri = new UriTemplate(apiUrl);
+				apiUrl = uri.fill(opts);
+
 				return $follow(apiUrl, opts.replace ? entity : {})
 					.then(function(result) {
-						if (opts.replace) {
+						if (result && opts.replace) {
+							savedProperties = _.cloneDeep(entity.properties);
+							etag = result.headers('ETag');
 							setAppLocation(result.config.url);
 						}
 						return $q.when(result);
@@ -300,7 +317,9 @@ angular.module('angular-siren.navigator', [])
 
 				return $execute(action, opts.replace ? entity : {})
 					.then(function(result) {
-						if (opts.replace) {
+						if (result && opts.replace) {
+							savedProperties = _.clone(entity);
+							etag = result.headers('ETag');
 							setAppLocation(currentUrl);
 						}
 						return $q.when(result);
@@ -318,7 +337,7 @@ angular.module('angular-siren.navigator', [])
 
 				var apiUrl = app2api($window.location.hash);
 				if (apiUrl !== currentUrl) {
-					follow(apiUrl, entity);
+					$follow(apiUrl, entity);
 				}
 			}
 
