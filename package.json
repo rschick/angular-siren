@@ -1,6 +1,6 @@
 {
   "name": "angular-siren",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "services for angular apps that use a siren-style API",
   "main": "src/index.js",
   "scripts": {
