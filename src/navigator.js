@@ -318,7 +318,7 @@ angular.module('angular-siren.navigator', [])
 				return $execute(action, opts.replace ? entity : {})
 					.then(function(result) {
 						if (result && opts.replace) {
-							savedProperties = _.clone(entity.properties);
+							savedProperties = _.cloneDeep(entity.properties);
 							etag = result.headers('ETag');
 							setAppLocation(currentUrl);
 						}
