@@ -10,14 +10,7 @@ angular.module('angular-siren.ui', [
 
 	var entityMap = {};
 
-	return {
-
-		map: function(map) {
-			_.assign(entityMap, map);
-			return this;
-		},
-
-		getElementName: function(entity) {
+	function getElementName(entity, map) {
 			var entityClasses = [].concat((entity && entity.class) || undefined);
 
 			var bestMatch = {
@@ -25,9 +18,9 @@ angular.module('angular-siren.ui', [
 				count: 0
 			};
 
-			_.forEach(entityMap, function(classes, elementName) {
+			_.forEach(map, function(classes, elementName) {
 
-				if (!entityMap.hasOwnProperty(elementName)) {
+				if (!map.hasOwnProperty(elementName)) {
 					return;
 				}
 
@@ -51,6 +44,24 @@ angular.module('angular-siren.ui', [
 
 			return conf.entityPrefix + bestMatch.elementName;
 
+		}
+
+	return {
+
+		Mapper: function(map) {
+			this.entityMap = map;
+			this.getElementName = function(entity) {
+				return getElementName(entity, this.entityMap);
+			}
+		},
+
+		map: function(map) {
+			_.assign(entityMap, map);
+			return this;
+		},
+
+		getElementName: function(entity) {
+			return getElementName(entity, entityMap);
 		}
 	};
 })
