@@ -52,7 +52,7 @@ angular.module('angular-siren.ui', [
 			this.entityMap = map;
 			this.getElementName = function(entity) {
 				return getElementName(entity, this.entityMap);
-			}
+			};
 		},
 
 		map: function(map) {

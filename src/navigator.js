@@ -112,7 +112,7 @@ angular.module('angular-siren.navigator', [])
 			 * #/browse/courses => http://<apiBase>/courses
 			 */
 			function app2api(appUrl) {
-				return conf.baseUrl + unescape(unescape(appUrl.substring(conf.hashPrefix.length)));
+				return conf.baseUrl + decodeURIComponent(decodeURIComponent(appUrl.substring(conf.hashPrefix.length)));
 			}
 
 			/*
