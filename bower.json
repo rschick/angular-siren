@@ -28,5 +28,5 @@
     "uri-templates": "https://github.com/geraintluff/uri-templates.git#master",
     "fast-json-patch": "0.x"
   },
-  "version": "1.4.1"
+  "version": "1.5.0"
 }
