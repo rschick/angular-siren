@@ -119,7 +119,15 @@ directive('navHref', function(SirenNavigator) {
 		link: function(scope, element, attrs) {
 			attrs.$observe('navHref', function() {
 				var href = typeof attrs.navHref === 'object' ? attrs.navHref.href : attrs.navHref;
-				element.attr('href', SirenNavigator.api2app(href));
+				if (href) {
+					element.on('click', function() {
+						SirenNavigator.follow(href);
+					});
+					element.css('cursor', 'pointer');
+				} else {
+					element.off('click');
+					element.css('cursor', 'auto');
+				}
 			});
 		}
 	};
